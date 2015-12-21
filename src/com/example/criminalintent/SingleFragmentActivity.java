@@ -10,11 +10,14 @@ import android.os.Bundle;
 
 public abstract class SingleFragmentActivity extends FragmentActivity {
 	protected abstract Fragment creatFragment();
+	protected int getLayoutResId(){
+		return R.layout.activity_fragment;
+	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_fragment);
+		setContentView(getLayoutResId());
 		FragmentManager fm = getSupportFragmentManager();
 		Fragment fragment = fm.findFragmentById(R.id.fragmentContainer);
 		if(fragment == null){

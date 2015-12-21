@@ -59,6 +59,7 @@ public class CrimeFragment extends Fragment{
 	private ImageView mPhotoView;
 	private Button mReportButton;
 	private Button mChooseSuspect;
+	private Callbacks mCallbacks;
 	
 	public static CrimeFragment newInstance(UUID crimeId){
 		Bundle args = new Bundle();
@@ -71,6 +72,16 @@ public class CrimeFragment extends Fragment{
 	public void updatedate(){
 		mDateButton.setText(mCrime.getDate().toString());
 	}
+	
+	/**
+	 * 
+	 * @author Administrator Requeset interface for hosting activities
+	 *
+	 */
+	public interface Callbacks{
+		void onCrimeUpdate(Crime crime);
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -101,6 +112,7 @@ public class CrimeFragment extends Fragment{
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
 				mCrime.setTitle(s.toString());
+				mCallbacks.onCrimeUpdate(mCrime);
 			}
 			
 			@Override
@@ -141,6 +153,7 @@ public class CrimeFragment extends Fragment{
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				// TODO Auto-generated method stub
 				mCrime.setSolved(isChecked);
+				mCallbacks.onCrimeUpdate(mCrime);
 			}
 		});
 		
@@ -211,6 +224,20 @@ public class CrimeFragment extends Fragment{
 		}
 		return v;
 	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		// TODO Auto-generated method stub
+		super.onAttach(activity);
+		mCallbacks = (Callbacks)activity;
+	}
+	
+	@Override
+	public void onDetach() {
+		// TODO Auto-generated method stub
+		super.onDetach();
+		mCallbacks = null;
+	}
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// TODO Auto-generated method stub
@@ -219,6 +246,7 @@ public class CrimeFragment extends Fragment{
 		if(requestCode == REQUEST_DATE){
 			Date date = (Date)data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
 			mCrime.setDate(date);
+			mCallbacks.onCrimeUpdate(mCrime);
 			//mDateButton.setText(mCrime.getDate().toString());
 			updatedate();
 		} else if (requestCode == REQUREST_PHOTO){
@@ -229,6 +257,7 @@ public class CrimeFragment extends Fragment{
 				mCrime.setPhoto(p);
 				Log.i(TAG,"Crime: " + mCrime.getTitle() + " has a photo");
 				showphoto();
+				mCallbacks.onCrimeUpdate(mCrime);
 			}
 		} else if(requestCode == REQUREST_CONTACT) {
 			Uri contactUri = data.getData();
@@ -246,6 +275,7 @@ public class CrimeFragment extends Fragment{
 			c.moveToFirst();
 			String suspect = c.getString(0);
 			mCrime.setSuspect(suspect);
+			mCallbacks.onCrimeUpdate(mCrime);
 			mChooseSuspect.setText(suspect);
 			c.close();
 		}
